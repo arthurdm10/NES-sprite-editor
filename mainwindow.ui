@@ -304,7 +304,7 @@
      <x>0</x>
      <y>0</y>
      <width>636</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -315,7 +315,14 @@
     <addaction name="actionSave_ROM"/>
     <addaction name="actionNew_Tileset"/>
    </widget>
+   <widget class="QMenu" name="menuPalette">
+    <property name="title">
+     <string>Palette</string>
+    </property>
+    <addaction name="actionImport"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuPalette"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -339,6 +346,14 @@
   <action name="actionNew_Tileset">
    <property name="text">
     <string>New Tileset</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>Import...</string>
+   </property>
+   <property name="toolTip">
+    <string>Import a new palette</string>
    </property>
   </action>
  </widget>

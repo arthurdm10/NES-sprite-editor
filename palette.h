@@ -69,6 +69,7 @@ struct Palette {
 
     static void loadPallete(const std::string& filename) {
         std::ifstream file(filename, std::ios::binary);
+        allColors.clear();
         allColors.resize(256);
 
         if(file.is_open()){

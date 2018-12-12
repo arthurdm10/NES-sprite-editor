@@ -35,7 +35,7 @@ private:
     void getFileData(const QString& filename);
 
     void updatePaletteDemo();
-
+    void updatePaletteView();
   
 
 private slots:
@@ -49,6 +49,8 @@ private slots:
 
 	void on_newPaletteBtn_clicked();
 	void on_delPaletteBtn_clicked();
+
+    void on_actionImport_triggered();
 
 private:
 

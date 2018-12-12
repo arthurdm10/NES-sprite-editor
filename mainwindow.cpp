@@ -7,7 +7,7 @@
 #include <QGraphicsView>
 #include <qdebug.h>
 #include <QFileDialog>
-#include <QMessagebox>
+#include <QMessageBox>
 #include <QInputDialog>
 
 #include <QMouseEvent>
@@ -28,9 +28,11 @@ MainWindow::MainWindow(QWidget *parent) :
 	isARomFile(true),
 	ui(new Ui::MainWindow) {
 
+
+
 	ui->setupUi(this);
 
-
+    namespace fs = std::filesystem;
 
 	m_tileView.setGraphicsView(ui->editedTilesView);
 	ui->editedTilesView->installEventFilter(&m_tileView);
@@ -53,7 +55,12 @@ MainWindow::MainWindow(QWidget *parent) :
 		btn->installEventFilter(this);
 	}
 
-	Palette::loadPallete("nes.pal");
+    if(fs::exists("nes.pal")){
+        Palette::loadPallete("nes.pal");
+    }else{
+        this->on_actionImport_triggered();
+    }
+
 	Palette::currentPalette = &Palette::palettes[0];
 	Palette::currentColorIndex = 3;
 
@@ -79,32 +86,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	auto colorId = Palette::currentPalette->colors[3];
 	const auto color = Palette::allColors[colorId];
-	constexpr qreal rectSz = 16.0;
+
 
 	Palette::currentColor		= color.val();
 	Palette::currentColorIndex	= 3;
 
 	ui->currentColorRgbLabel->setText(QString::fromStdString(color.toString()));
 
-	colorId = 0x00;
-	for (std::size_t y = 0; y < Palette::allColors.size() / 8; y++) {
-		for (int x = 0; x < 8; x++) {
-
-			const auto color = Palette::allColors[colorId];
-			auto *colorRect = new GraphicsColorItem();
-
-			colorRect->setRect(x * rectSz, y * rectSz, rectSz, rectSz);
-			colorRect->setBrush(QBrush(qRgb(color.r, color.g, color.b)));
-
-			colorRect->setData(0xcc, colorId);
-
-			m_paletteScene.addItem(colorRect);
-
-			colorId++;
-		}
-	}
 
 	ui->paletteView->setScene(&m_paletteScene);
+
+    updatePaletteView();
 }
 
 
@@ -183,6 +175,10 @@ void MainWindow::getFileData(const QString &filename) {
 
 
 void MainWindow::updatePaletteDemo() {
+    if(Palette::currentPalette == nullptr){
+        return;
+    }
+
 	for (std::size_t i = 0; i < 0x04; i++) {
 		auto colorId = Palette::currentPalette->colors[i];
 		auto color = Palette::allColors[colorId];
@@ -193,7 +189,31 @@ void MainWindow::updatePaletteDemo() {
 
 		colorDemo[i]->setProperty("colorIndex", i);
 		colorDemo[i]->setToolTip(QString::number(colorId, 16).toUpper());
-	}
+    }
+}
+
+void MainWindow::updatePaletteView() {
+    uint colorId = 0x00;
+    constexpr qreal rectSz = 16.0;
+
+    m_paletteScene.clear();
+
+    for (std::size_t y = 0; y < Palette::allColors.size() / 8; y++) {
+        for (int x = 0; x < 8; x++) {
+
+            const auto color = Palette::allColors[colorId];
+            auto *colorRect = new GraphicsColorItem();
+
+            colorRect->setRect(x * rectSz, y * rectSz, rectSz, rectSz);
+            colorRect->setBrush(QBrush(qRgb(color.r, color.g, color.b)));
+
+            colorRect->setData(0xcc, colorId);
+
+            m_paletteScene.addItem(colorRect);
+
+            colorId++;
+        }
+    }
 }
 
 
@@ -203,7 +223,8 @@ void MainWindow::on_actionOpen_triggered() {
 
 	auto filename = QFileDialog::getOpenFileName(this,
 		"Open .nes file",
-		"D:", "NES ROM (*.nes) ;; NES Sprites (*.chr)");
+        QDir::currentPath(),
+        "NES ROM (*.nes) ;; NES Sprites (*.chr)");
 
 	QString fileExtension = QString::fromStdString(fs::path(filename.toStdString()).extension().string());
 
@@ -360,13 +381,29 @@ void MainWindow::on_actionSave_ROM_triggered() {
 
 			}
 
-
-
 			file.write(reinterpret_cast<char*>(Tileset::tileData.data()), Tileset::tileData.size());
 		}
 
 	}
 
+void MainWindow::on_actionImport_triggered() {
+
+
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    "Import new palette",
+                                                    QDir::currentPath(),
+                                                    "Palette (*.pal)");
+
+    if(!filename.isNull()){
+        Palette::loadPallete(filename.toStdString());
+        updatePaletteView();
+        updatePaletteDemo();
+        on_paletteCombobox_currentIndexChanged(ui->paletteCombobox->currentIndex());
+
+
+    }
+
+}
 
 
 
