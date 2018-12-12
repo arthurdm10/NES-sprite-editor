@@ -1,0 +1,25 @@
+#include "palette.h"
+
+Palette* Palette::currentPalette;
+std::vector<Bitmap::Pixel>  Palette::allColors;
+uint Palette::currentColor		= 0x00;
+byte Palette::currentColorIndex = 0x00;
+
+
+std::vector<Palette> Palette::palettes =
+{
+    {
+        {0x0f, 0x17, 0x28, 0x38},
+        {0x0f, 0x30, 0x26, 0x05},
+        {0x0f, 0x20, 0x10, 0x00},
+        {0x0f, 0x13, 0x23, 0x33},
+        {0x0f, 0x1c, 0x2b, 0x39},
+        {0x0f, 0x06, 0x15, 0x36},
+        {0x0a, 0x05, 0x26, 0x30},
+        {0x22, 0x16, 0x27, 0x18},
+    }
+};
+
+
+QPushButton*                    GraphicsColorItem::selectedButton;
+QLabel*                         GraphicsColorItem::colorRgbLabel;
