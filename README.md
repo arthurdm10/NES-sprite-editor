@@ -1,2 +1,2 @@
-# NES-sprite-editor
-simple sprite editor for NES games using Qt
+![](nestileeditor1.jpg)
+![](nestileeditor2.jpg)
